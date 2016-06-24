@@ -1,0 +1,7 @@
+[
+	{"path": "/digestForm", "action":{"template":"digestForm.ejs", "params":[]} },
+	{"path":"/","action":"createform"},
+	{"path":"/digest","action":"digest"},
+	{"path":"/s3digest","action":"s3digest"},
+	{"path":"/process","action":"processFile"}
+]

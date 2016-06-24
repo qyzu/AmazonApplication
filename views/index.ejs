@@ -1,0 +1,58 @@
+<html>
+	<head>
+		<link href="http://netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css" rel="stylesheet">
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	</head>
+	<body>
+		<nav class="navbar">
+
+		</nav>
+		<div class="container">
+		<section id="section1" class="panel panel-default">
+
+			<div class="panel-heading">
+			<div class="container">
+	    		<h3 class="panel-title">POSTing a file to Amazon S3</h3>
+	    		</div>
+		  	</div>
+	  		<div class="panel-body">
+<form action="https://<%=bucket%>.s3.amazonaws.com/" method="POST" id="sign-up-form" class="form-horizontal" enctype="multipart/form-data">
+
+	<div class="container">
+	<% fields.forEach(function(elem){ %>
+	  <input type="hidden" name="<%= elem.name  %>" value="<%=elem.value %>"/>
+		<%}); %>
+
+	<div class="col-xs-5">
+	<div class="form-group">
+    	<label for="exampleInputFile">File input</label>
+    	<input type="file" name="file" accept='image/*'>
+    	<p class="help-block">File will be send to the bucket <%=bucket%> </p>
+  </div>
+
+
+	</div>
+	</div>
+
+	<div class="container">
+	<div class="col-xs-3">
+	<input type="submit" class="btn  btn-primary btn-block" value="Confirm"/>
+	</div>
+	</div>
+</form>
+	  		</div>
+			<footer class="panel-footer">
+
+	    <form action="process" method="POST">
+				<% for(var i=0; i<s3FilesList.length; ++i) { %>
+		      <input type="checkbox" name="id<%=i%>" value="<%=s3FilesList[i]%>"> <%=s3FilesList[i]%><br>
+		    <%} %>
+			<br>
+	  	<input type="submit" class="btn  btn-primary btn-block" value="Resize"/>
+	    </form>
+
+			</footer>
+		</section>
+	</div>
+	</body>
+</html>

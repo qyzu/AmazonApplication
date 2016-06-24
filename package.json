@@ -1,0 +1,20 @@
+{
+  "name": "awslab4",
+  "version": "0.0.1",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Radek Adamus <adamusr@gmail.com> (https://github.com/radamus/)",
+  "license": "MIT",
+  "dependencies": {
+    "async": "^0.2.10",
+    "aws-sdk": "^2.3.9",
+    "ejs": "^1.0.0",
+    "moment": "^2.5.1",
+    "webs-weeia": "0.0.2",
+    "simpledb": "0.2.0",
+    "queuemanager": "^0.2.6"
+  }
+}

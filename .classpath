@@ -1,0 +1,23 @@
+<<<<<<< HEAD
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry exported="true" kind="lib" path="libs/aws-java-sdk-1.11.8.jar"/>
+	<classpathentry exported="true" kind="lib" path="libs/commons-logging-1.2.jar"/>
+	<classpathentry kind="lib" path="libs/com.fasterxml.jackson.databind.jar"/>
+	<classpathentry kind="lib" path="libs/com.fasterxml.jackson.core.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
+=======
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry exported="true" kind="lib" path="libs/aws-java-sdk-1.11.8.jar"/>
+	<classpathentry exported="true" kind="lib" path="libs/commons-logging-1.2.jar"/>
+	<classpathentry kind="lib" path="libs/com.fasterxml.jackson.databind.jar"/>
+	<classpathentry kind="lib" path="libs/com.fasterxml.jackson.core.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
+>>>>>>> 9904c2d8c39c5e4ad480b1090f497033f63ea081
