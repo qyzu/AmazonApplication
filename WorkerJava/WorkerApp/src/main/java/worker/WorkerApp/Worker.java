@@ -26,6 +26,8 @@ import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.simpledb.AmazonSimpleDBAsync;
 import com.amazonaws.services.simpledb.AmazonSimpleDBAsyncClient;
 import com.amazonaws.services.simpledb.model.CreateDomainRequest;
+import com.amazonaws.services.simpledb.model.GetAttributesRequest;
+import com.amazonaws.services.simpledb.model.GetAttributesResult;
 import com.amazonaws.services.simpledb.model.PutAttributesRequest;
 import com.amazonaws.services.simpledb.model.PutAttributesResult;
 import com.amazonaws.services.simpledb.model.ReplaceableAttribute;
@@ -53,6 +55,8 @@ public class Worker implements Runnable {
     private AmazonSQSAsync sqs;
     private AmazonSimpleDBAsync sdb;
     private Config config;
+    private String domainName;
+    
     
     private void initConfig() throws FileNotFoundException, IOException {
     	FileInputStream fis = new FileInputStream(new File("../../config.json"));
@@ -80,8 +84,10 @@ public class Worker implements Runnable {
         s3 = new AmazonS3Client(awsCredentials);
         sqs.setRegion(awsRegion);
 
+		domainName = "klysSimpleDB";
         sdb = new AmazonSimpleDBAsyncClient(awsCredentials);
         sdb.setRegion(awsRegion);
+		//sdb.createDomain(new CreateDomainRequest(domainName));
 	}
 	
 	public static void main(String[] args) {
@@ -169,18 +175,16 @@ public class Worker implements Runnable {
 		}
 	}
 	
-	private void sendLogsToSimpleDB(Message message) {
-		String domainName = "klysSimpleDB";
-		sdb.createDomain(new CreateDomainRequest(domainName));
-		
+	private void sendLogsToSimpleDB(Message message) {		
 		String log = message.getBody() + " has been resized.";
 		
 		List<ReplaceableAttribute> attributes = new ArrayList<>();
 		String[] parameters = message.getBody().split(";");
 		attributes.add(new ReplaceableAttribute("bucket", parameters[0], false));
-		attributes.add(new ReplaceableAttribute("key", parameters[1], false));
+		attributes.add(new ReplaceableAttribute("key", parameters[1], false));		
 		
-		PutAttributesResult result = sdb.putAttributes(new PutAttributesRequest(domainName, log, attributes));
+		sdb.putAttributes(new PutAttributesRequest(domainName, log, attributes));
+		GetAttributesResult result = sdb.getAttributes(new GetAttributesRequest(domainName, log));
 		System.out.println(result);
 	}
 	
