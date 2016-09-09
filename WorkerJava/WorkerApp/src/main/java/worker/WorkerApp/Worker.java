@@ -11,7 +11,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
+
 import javax.imageio.ImageIO;
+
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.regions.Region;
@@ -46,6 +49,8 @@ import com.google.gson.GsonBuilder;
 	5. Na koniec wysyla logi do dsimpleDB analogiczne do wysylanych plikow wczesniej, ale moze jeszcze z info ze zostal zmodyfikowany.
  */
 public class Worker {
+	private static final Logger LOGGER = Logger.getLogger(Worker.class.getSimpleName());
+	
     private final String sqsQueueUrl = "https://sqs.us-west-2.amazonaws.com/983680736795/klysSQS";
     private AmazonS3 s3;
     private AmazonSQSAsync sqs;
@@ -67,6 +72,7 @@ public class Worker {
 	Worker() {
 		try {
 			initConfig();
+			LOGGER.info("Config data have been successfully initialized!\n");
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
@@ -84,6 +90,7 @@ public class Worker {
         sdb = new AmazonSimpleDBAsyncClient(awsCredentials);
         sdb.setRegion(awsRegion);
 		//sdb.createDomain(new CreateDomainRequest(domainName));
+		LOGGER.info("Amazon components have been successfully initialized!\n");
 	}
 	
 	private Message receiveMessage() {		
@@ -93,16 +100,14 @@ public class Worker {
          if(messages.isEmpty()) {
         	 return null;
          } else {
-             System.out.println();
+     		 LOGGER.info("Message has been successfully received from SQS!\n");
         	 return messages.get(0);
          }
 	}
 	
 	private void deleteMessage(Message message) {
-		DeleteMessageResult result = sqs.deleteMessage(new DeleteMessageRequest()
-									    .withQueueUrl(sqsQueueUrl)
-									    .withReceiptHandle(message.getReceiptHandle()));
-		System.out.println(result);
+		sqs.deleteMessage(new DeleteMessageRequest().withQueueUrl(sqsQueueUrl).withReceiptHandle(message.getReceiptHandle()));
+		LOGGER.info("Message has been successfully deleted from SQS!\n");
 	}
 	
 	private File getFileFromS3(Message message) {
@@ -117,8 +122,9 @@ public class Worker {
 	            IOUtils.copy(inputStream, out);
 	        }
 	        inputStream.close();
+			LOGGER.info("File has been successfully downloaded from S3!\n");
 	        return file;
-		} catch (IOException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
 		}
@@ -128,10 +134,10 @@ public class Worker {
 		try {
 			Image image = ImageIO.read(file);
 			image = image.getScaledInstance(image.getWidth(null)/2, image.getHeight(null)/2, Image.SCALE_DEFAULT);
-			System.out.println(body + " : File resized successfully!");			
+			LOGGER.info("File has been successfully resized!\n");
 			return image;
 		} catch (IOException e) {
-			//e.printStackTrace();
+			e.printStackTrace();
 			return null;
 		}
 	}
@@ -141,7 +147,7 @@ public class Worker {
 		
 		if(parameters.length == 2) {
 		    try {
-				File imageFile = new File(parameters[1]); //fileName the same as original //"imageFile.png");
+				File imageFile = new File("resizedImage");
 				BufferedImage bufferedImage = new BufferedImage(image.getWidth(null), image.getHeight(null), BufferedImage.TYPE_INT_ARGB);
 			    Graphics2D g2d = bufferedImage.createGraphics();
 			    g2d.drawImage(image, 0, 0, null);
@@ -149,7 +155,8 @@ public class Worker {
 				ImageIO.write(bufferedImage, "png", imageFile);
 				
 				s3.putObject(new PutObjectRequest(parameters[0], parameters[1], imageFile));
-			} catch (IOException e) {
+				LOGGER.info("Resized image has been successfully put to S3!\n");
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
@@ -165,13 +172,13 @@ public class Worker {
 		
 		sdb.putAttributes(new PutAttributesRequest(domainName, log, attributes));
 		GetAttributesResult result = sdb.getAttributes(new GetAttributesRequest(domainName, log));
-		System.out.println(result);
+		LOGGER.info("Logs has been successfully sent to simpleDB: " + result + "\n");
 	}
 	
 	public void startWork() {		
 		while(true) {
 			//Sprawdza czy w sqs sa jakies messages z informacjami o plikach w kolejce do zmodyfikowania:
-			final Message message = receiveMessage();			
+			final Message message = receiveMessage();
 			if(message != null) {
 				//Jeżeli są to usuwa message z kolejki:
 				deleteMessage(message);	
