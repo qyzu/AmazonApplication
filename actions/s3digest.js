@@ -1,6 +1,7 @@
 var AWS = require("aws-sdk");
 var helpers = require("../helpers");
 var simpledb = require('simpledb');
+var sqs = require('./sqs');
 AWS.config.loadFromPath('./config.json');
 var AWS_CONFIG_FILE = "config.json";
 
@@ -31,16 +32,13 @@ bucket - key i wyswietlic liste plikow uzytkownikowi.
 3. Worker bedzie musial to odebrac i wykonac na nich operacje, a dla webservisu juz chyba praca sie skonczy.
 */
 
-
     var params = {
-        Bucket: request.query["bucket"], //required
-        Key: request.query["key"], //required
+        Bucket: request.query["bucket"], /* required */
+        Key: request.query["key"], /* required */
     };
 
-    //Sprawdzenie, czy sie udalo zuploadowac plik i dodac do S3:
+    sqs.addItemToSQS(params.Bucket + ";" + params.Key);
     getUploadedFileFromS3(request, params);
-
-    callback(null, request.body);
 }
 
 //Metoda sprawdzajaca czy sie udalo zuploadowac plik i dodac do S3:
@@ -52,15 +50,14 @@ function getUploadedFileFromS3(request, params) {
           console.log(err, err.stack); // an error occurred
         } else {
           //Successful response:
-          console.log("FILE UPLOADED SUCCESFULLY!:\n");
           //console.log(data);
+          console.log("ADDING MESSAGE TO SIMPLE_DB:\n");
           addLogsToSimpleDB(data, params);
         }
     });
 }
 
 function addLogsToSimpleDB(data, params) {
-    console.log("ADDING LOG TO SIMPLE_DB:\n");
     //Wyliczenie dla niego wartosci skrotu:
     var digets = helpers.calculateDigest("MD5", data.Body);
 
