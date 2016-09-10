@@ -178,7 +178,7 @@ public class Worker {
 	public void startWork() {		
 		while(true) {
 			//Sprawdza czy w sqs sa jakies messages z informacjami o plikach w kolejce do zmodyfikowania:
-			final Message message = receiveMessage();
+			final Message message = receiveMessage();	
 			if(message != null) {
 				//Jeżeli są to usuwa message z kolejki:
 				deleteMessage(message);	

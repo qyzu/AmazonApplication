@@ -2,6 +2,7 @@
 	"conditions":
 	[
 		["starts-with", "$key", "klys.student/"],
+		   {"bucket_key": "klys.student/"},
 			 {"bucket": "lab4-weeia"},
 			 {"acl": "private"},
 			 {"success_action_redirect": "http://localhost:8080/s3digest"},

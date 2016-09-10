@@ -36,15 +36,15 @@
 
 	<div class="container">
 	<div class="col-xs-3">
-	<input type="submit" class="btn  btn-primary btn-block" value="Confirm"/>
+		<input type="submit" class="btn  btn-primary btn-block" value="Confirm" />
 	</div>
 	</div>
 </form>
 	  		</div>
 			<footer class="panel-footer">
 
-	    <form action="process" method="POST">
-				<% for(var i=0; i<s3FilesList.length; ++i) { %>
+	    <form action="resizedFiles" method="post" >
+				<% for(var i=1; i<s3FilesList.length; ++i) { %>  <!-- var i=1, because of empty file name klys.student/ in first element of list -->
 		      <input type="checkbox" name="id<%=i%>" value="<%=s3FilesList[i]%>"> <%=s3FilesList[i]%><br>
 		    <%} %>
 			<br>

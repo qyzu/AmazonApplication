@@ -8,9 +8,10 @@ var INDEX_TEMPLATE = "index.ejs";
 var AWS = require("aws-sdk");
 AWS.config.loadFromPath('./config.json');
 var AWS_CONFIG_FILE = "config.json";
+var filesListUpdater = require('./filesListUpdater');
 
 
-var task = function(request, callback){
+var task = function(request, callback) {
 		//1. load configuration
 		var awsConfig = helpers.readJSONFile(AWS_CONFIG_FILE);
 		var policyData = helpers.readJSONFile(POLICY_FILE);
@@ -21,36 +22,16 @@ var task = function(request, callback){
 		//3. generate form fields for S3 POST
 		var s3Form = new S3Form(policy);
 
-		//4. get bucket name
+		//4. Get form fields:
 		var formFields = s3Form.generateS3FormFields();
 		formFields = s3Form.addS3CredientalsFields(formFields, awsConfig);
 
+		//5. get bucket name and key:
 		var bucketName = policy.getConditionValueByKey("bucket");
-		var bucketKey = "klys.student/";
+		var bucketKey = policy.getConditionValueByKey("bucket_key");
 
 		//Pobieram nazwy plikow w celu wyswietlenia ich:
-		updateUploadedFilesList(bucketName, bucketKey, function(err, contents) {
-			 var filesList = [];
-			 for(var i=0; i<contents.length; ++i) {
-				   console.log(contents[i].Key);
-				   filesList.push(contents[i].Key);
-		   }
-			 callback(null, {template: INDEX_TEMPLATE, params:{fields:formFields, bucket:bucketName, s3FilesList:filesList}});
-	 });
-}
-
-function updateUploadedFilesList(bucketName, bucketKey, callback) {
-	  console.log("Updating files list for " + bucketName + " " + bucketKey + ":");
-		var params = { Bucket: bucketName, Prefix: bucketKey };
-    var s3 = new AWS.S3();
-    s3.listObjects(params, function(err, data) {
-        if (err) {
-					  console.log(err, err.stack); // an error occurred
-        } else {
-            console.log("Pobrano liste nazw plikow!"); // successful response
-						callback(null, data.Contents);
-        }
-    });
+	  filesListUpdater.updateUploadedFilesList(bucketName, bucketKey, formFields, callback);
 }
 
 exports.action = task;
